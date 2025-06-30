@@ -1,41 +1,20 @@
-import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
-import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../../../components/providers/AuthProvider";
+import { useParams } from "react-router-dom";
 
 const CheckoutForm = () => {
-  const [error, setError] = useState('');
-  const [clientSecret, setClientSecret] = useState('');
-  const [transactionId, setTransactionId] = useState('');
-  const stripe = useStripe();
-  const elements = useElements();
+  const [values, setValues] = useState({
+    donationAmount: "",
+    name: "",
+    email: "",
+  });
+  const [submitted, setSubmitted] = useState(false);
   const axiosSecure = useAxiosSecure();
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
-
-  const [donation, setDonation] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
   const { id } = useParams();
-  const baseUrl = "https://serversite-pet-adoption.vercel.app";
-  useEffect(() => {
-    fetch(`${baseUrl}/adddonationcamp`)
-      .then(response => response.json())
-      .then(data => {
-        const activeDonation = data.find(donation => donation._id == id);
-        setDonation(activeDonation);
-        setLoading(false); // Set loading to false after fetching data
-      })
-      .catch(error => {
-        console.error("Error fetching pets Category:", error);
-        setLoading(false); // Set loading to false on error
-      });
-  }, []);
-  console.log('activedonation', donation);
-  const [values, setValues] = useState({
-    donationAmount: 0,
-  });
+  const baseUrl = "http://localhost:5007";
 
   const handleChange = (e) => {
     setValues({
@@ -43,147 +22,92 @@ const CheckoutForm = () => {
       [e.target.name]: e.target.value,
     });
   };
-  console.log('donationnnnn', donation);
-  useEffect(() => {
-    if (donation) {
-      axiosSecure.post('/create-payment-intent', {
-        donationAmount: values.donationAmount,
-        image: donation.image,
-        name: donation.shortdesp,
-        ownerEmail: donation.userEmail
-      })
-        .then(res => {
-          console.log(res.data.clientSecret);
-          setClientSecret(res.data.clientSecret);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Optionally fetch donation campaign details if needed
+    // For now, just post the payment
+    const payment = {
+      email: values.email || user?.email,
+      name: values.name || user?.displayName,
+      donationId: id,
+      donationAmount: values.donationAmount,
+      date: new Date(),
+      status: "pending",
+    };
+    try {
+      const res = await axiosSecure.post("/payments", payment);
+      if (res.data?.paymentResult?.insertedId) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Thank you for your donation!",
+          showConfirmButton: false,
+          timer: 1500,
         });
-    }
-  }, [axiosSecure, values.donationAmount, donation]);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
-
-    const card = elements.getElement(CardElement);
-
-    if (card === null) {
-      return;
-    }
-
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
-      card,
-    });
-
-    if (error) {
-      console.log('payment error', error);
-      setError(error.message);
-    } else {
-      console.log('payment method', paymentMethod);
-      setError('');
-    }
-
-    if (donation) {
-      const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: card,
-          billing_details: {
-            email: user?.email || 'anonymous',
-            name: user?.displayName || 'anonymous'
-          }
-        }
-      });
-
-      if (confirmError) {
-        console.log('confirm error');
-      } else {
-        console.log('payment intent', paymentIntent);
-        if (paymentIntent.status === 'succeeded') {
-          console.log('transaction id', paymentIntent.id);
-          setTransactionId(paymentIntent.id);
-          const payment = {
-            email: user.email,
-            image: donation.image,
-            name: donation.name,
-            donationId: donation._id,
-            donationAmount: values.donationAmount,
-            transactionId: paymentIntent.id,
-            ownerEmail: donation.userEmail,
-
-            max_donation_limit: donation.max_donation_limit,
-            date: new Date(),
-            status: 'pending'
-          };
-          console.log('paymentsssss', payment);
-
-          const res = await axiosSecure.post('/payments', payment);
-          console.log('payment saved', res.data);
-
-          if (res.data?.paymentResult?.insertedId) {
-            Swal.fire({
-              position: 'top-end',
-              icon: 'success',
-              title: 'Thank you for the taka paisa',
-              showConfirmButton: false,
-              timer: 1500
-            });
-            // navigate('/dashboard/paymentHistory');
-          }
-        }
+        setSubmitted(true);
       }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Something went wrong!",
+      });
     }
-  }
+  };
 
-  if (loading) {
-    // Render a loading spinner or message while fetching data
-    return <p>Loading...</p>;
-  }
-
-  if (donation.pause) {
-    // Render a message or some UI indicating that donations are currently paused
-    return <p>Donations are currently paused.</p>;
+  if (submitted) {
+    return (
+      <div className="text-center p-8">
+        <h2 className="text-2xl font-bold mb-4">Thank you for your donation!</h2>
+        <p>We appreciate your support.</p>
+      </div>
+    );
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <CardElement
-        options={{
-          style: {
-            base: {
-              fontSize: '16px',
-              color: '#424770',
-              '::placeholder': {
-                color: '#aab7c4',
-              },
-            },
-            invalid: {
-              color: '#9e2146',
-            },
-          },
-        }}
-      />
-      <div htmlFor='max_donation_limit' className="mb-5">
-        <label className="mb-3 block text-base font-medium text-[#07074D]">
-          Donation Amount
-        </label>
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto p-8 bg-white rounded shadow">
+      <h2 className="text-xl font-bold mb-4">Donate</h2>
+      <div className="mb-4">
+        <label className="block mb-1">Name</label>
+        <input
+          type="text"
+          name="name"
+          value={values.name}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+          required
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block mb-1">Email</label>
+        <input
+          type="email"
+          name="email"
+          value={values.email}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+          required
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block mb-1">Donation Amount</label>
         <input
           type="number"
           name="donationAmount"
-          id="donationAmount"
-          placeholder="Donation Amount"
           value={values.donationAmount}
           onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
           min="1"
-          className="w-full appearance-none rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+          required
         />
       </div>
-      <button className="btn btn-sm btn-primary my-4" type="submit" disabled={!stripe || !clientSecret || donation?.pause}>
-        Pay
+      <button
+        type="submit"
+        className="w-full bg-pink-600 text-white py-2 rounded hover:bg-pink-700"
+      >
+        Donate
       </button>
-      <p className="text-red-600">{error}</p>
-      {transactionId && <p className="text-green-600"> Your transaction id: {transactionId}</p>}
     </form>
   );
 };

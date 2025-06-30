@@ -35,30 +35,33 @@ This project provides a Docker-based setup for easy local development and deploy
 
 ### Requirements
 - Docker and Docker Compose installed on your system.
-- No additional environment variables are required by default, but you may uncomment and use an `.env` file if needed for your setup.
-- The application uses Node.js version `22.13.1-slim` as specified in the Dockerfile.
+- Node.js version `22.13.1-slim` is used for both frontend and backend services (as specified in the Dockerfiles).
+- No environment variables are required by default, but you may provide a `.env` file if needed for your setup (see below).
 
 ### Services and Ports
-- **js-app**: The main application, served on port **4173** (mapped to `localhost:4173`).
-- **mongo**: MongoDB database, running internally and accessible to the app via Docker network.
+- **js-root**: The main frontend application, served on port **4173** (mapped to `localhost:4173`).
+- **js-Pet-Adoption-Platform-Servers-Site**: The backend server, served on port **5007** (mapped to `localhost:5007`).
+- **mongo**: MongoDB database, running on port **27017** (mapped to `localhost:27017` for local development).
 
 ### Build and Run Instructions
 1. Clone the repository and navigate to the project root.
-2. Build and start the services using Docker Compose:
+2. Build and start all services using Docker Compose:
    
    ```bash
    docker compose up --build
    ```
    
-   This will build the React app, start the production server, and launch MongoDB with persistent storage.
+   This will build the frontend and backend images, start the servers, and launch MongoDB with persistent storage.
 
-3. Access the application at [http://localhost:4173](http://localhost:4173).
+3. Access the frontend application at [http://localhost:4173](http://localhost:4173).
+4. The backend API will be available at [http://localhost:5007](http://localhost:5007).
 
 ### Special Configuration
 - The application expects MongoDB to be available as a service named `mongo` (handled by Docker Compose).
-- Firebase and Stripe integrations are configured to use their respective cloud services and do not require local containers.
 - Persistent MongoDB data is stored in the `mongo-data` Docker volume.
-- If you need to provide environment variables (e.g., API keys), create a `.env` file in the project root and uncomment the `env_file` line in the `docker-compose.yml`.
+- If you need to provide environment variables (such as API keys for Firebase or Stripe), create a `.env` file in the appropriate directory and uncomment the `env_file` line in the `docker-compose.yml`.
+- Both frontend and backend run as non-root users for improved security.
+- The frontend is served using Vite's preview server, and the backend uses `npm start`.
 
 ---
 

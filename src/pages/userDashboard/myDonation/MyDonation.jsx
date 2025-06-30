@@ -32,7 +32,7 @@ const {user}=useContext(AuthContext);
    
 
     useEffect(() => {
-      const baseUrl = "https://serversite-pet-adoption.vercel.app";
+      const baseUrl = "http://localhost:5007";
       fetch(`${baseUrl}/payments`)
         .then(response => response.json())
         .then(data => {
@@ -61,7 +61,7 @@ const {user}=useContext(AuthContext);
           confirmButtonText: 'Yes, Remove it!'
         }).then((result) => {
           if (result.isConfirmed) {
-            const baseUrl = "https://serversite-pet-adoption.vercel.app";
+            const baseUrl = "http://localhost:5007";
             fetch(`${baseUrl}/payments/${_id}`, {
               method: 'DELETE',
             })

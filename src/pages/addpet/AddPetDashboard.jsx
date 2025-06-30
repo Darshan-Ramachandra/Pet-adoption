@@ -1,4 +1,3 @@
-
 import { NavLink } from 'react-router-dom';
 import AddPet from '../addpet/AddPet';
 import { useEffect, useState } from 'react';
@@ -13,7 +12,7 @@ const AddPetDashboard = () => {
   const[isAdmin,setIsAdmin]=useState(false)
 
   useEffect(() => {
-    fetch(`https://serversite-pet-adoption.vercel.app/users`)
+    fetch(`http://localhost:5007/users`)
       .then(response => response.json())
       .then(data => {
         console.log('Fetched users:', data);

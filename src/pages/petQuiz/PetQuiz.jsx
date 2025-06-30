@@ -222,7 +222,7 @@ const PetQuiz = () => {
 
   const handleSubmit = async () => {
     try {
-      const baseUrl = "https://serversite-pet-adoption.vercel.app";
+      const baseUrl = "http://localhost:5007";
       const response = await fetch(`${baseUrl}/pets`);
       const allPets = await response.json();
       

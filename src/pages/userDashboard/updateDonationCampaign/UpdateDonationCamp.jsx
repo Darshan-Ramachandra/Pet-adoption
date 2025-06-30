@@ -23,7 +23,7 @@ const UpdateDonationCamp = () => {
   useEffect(() => {
     const fetchDonationCampaign = async () => {
       try {
-        const baseUrl = "https://serversite-pet-adoption.vercel.app";
+        const baseUrl = "http://localhost:5007";
         const response = await fetch(`${baseUrl}/adddonationcamp/${donationCampaignId}`);
         const data = await response.json();
 
@@ -117,7 +117,7 @@ const UpdateDonationCamp = () => {
           Pause: false,
         };
 
-        const baseUrl = "https://serversite-pet-adoption.vercel.app";
+        const baseUrl = "http://localhost:5007";
         const response = await fetch(`${baseUrl}/updatedonationcamp/${donationCampaignId}`, {
           method: "PUT",
           headers: {

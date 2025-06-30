@@ -15,7 +15,7 @@ const MyAddedPets = () => {
   const petsPerPage = 10;
   const pagesVisited = currentPage * petsPerPage;
 
-  const baseUrl = "https://serversite-pet-adoption.vercel.app";
+  const baseUrl = "http://localhost:5007";
 
   useEffect(() => {
     fetch(`${baseUrl}/pets`)

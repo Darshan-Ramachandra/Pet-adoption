@@ -43,7 +43,7 @@ const PetListing = () => {
     // Include category parameter only if selectedCategory is not empty
     const categoryParam = selectedCategory ? `&category=${selectedCategory}` : '';
   
-    const baseUrl = "https://serversite-pet-adoption.vercel.app";
+    const baseUrl = "http://localhost:5007";
     fetch(`${baseUrl}/pets?limit=${fetchLimit}${categoryParam}`)
       .then(response => response.json())
       .then(data => {

@@ -1,0 +1,73 @@
+# Node.js dependencies
+node_modules/
+Pet-Adoption-Platform-Servers-Site/node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+
+# Version control
+.git/
+Pet-Adoption-Platform-Servers-Site/.git/
+.gitignore
+Pet-Adoption-Platform-Servers-Site/.gitignore
+.svn/
+.hg/
+
+# IDE/editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs and debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+debug/
+
+# Environment and secrets
+.env*
+*.env
+*.pem
+*.key
+*.crt
+config.local.*
+*.local.yml
+
+# Temporary files and caches
+tmp/
+temp/
+*.tmp
+.cache/
+pytest_cache/
+
+# Documentation and markdown
+docs/
+*.md
+README*
+
+# Docker files
+Dockerfile*
+docker-compose*
+
+# Local development
+.local/
+local/
+
+# Firebase and deployment caches
+.firebase/
+.firebaserc
+
+# Project-specific
+Pet-Adoption-Platform-Servers-Site/vercel.json
+
+# Miscellaneous
+*.DS_Store
+Thumbs.db
+
+# Exclude lock files (explicitly allowed)
+!package-lock.json
+!Pet-Adoption-Platform-Servers-Site/package-lock.json
